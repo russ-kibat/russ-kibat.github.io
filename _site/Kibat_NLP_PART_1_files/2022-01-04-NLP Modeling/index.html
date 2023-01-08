@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>NLP modeling – Russ Kibat – Data Scientist</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Data Scientist">
+    <meta property="og:description" content="Data Scientist" />
+    
+    <meta name="author" content="Russ Kibat" />
+
+    
+    <meta property="og:title" content="NLP modeling" />
+    <meta property="twitter:title" content="NLP modeling" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Russ Kibat - Data Scientist" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://raw.githubusercontent.com/russ-kibat/russ-kibat.github.io/master/images/profile_picture.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Russ Kibat</a></h1>
+            <p class="site-description">Data Scientist</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>NLP modeling</h1>
+
+  <div class="entry">
+    <hr />
+
+<h2 id="setting-up-the-notebook-reviewing-the-dataset">Setting up the notebook reviewing the dataset</h2>
+<h3 id="libraries">Libraries</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Import Libraries 
+</span>
+<span class="c1"># data wrangling 
+</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span> <span class="c1"># dataframe manipulation 
+</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span> <span class="c1"># dependancy for pyplot
+</span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span> <span class="c1"># create visualizations
+</span><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span> <span class="c1"># used to measure run times 
+</span><span class="kn">import</span> <span class="nn">re</span> <span class="c1"># regular expressions 
+</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span> <span class="c1"># principal component analysis 
+</span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span> <span class="c1">#data preparation 
+</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span> <span class="c1"># data scaling
+</span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span> <span class="c1"># scoring
+</span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span> <span class="c1"># scoring
+</span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">plot_confusion_matrix</span> <span class="c1"># scoring
+</span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span> <span class="c1">#scoring
+</span>
+<span class="c1"># models
+</span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span> 
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Load data
+</span><span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'data/clean_test_dataframe.csv'</span><span class="p">)</span>
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'data/clean_train_dataframe.csv'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Check the size of the dataframes
+</span><span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Test data set shape: </span><span class="si">{</span><span class="n">test_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> rows </span><span class="si">{</span><span class="n">test_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s"> columns'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Train data set shape: </span><span class="si">{</span><span class="n">train_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> rows </span><span class="si">{</span><span class="n">train_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s"> columns'</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Test data set shape: 4267 rows 2744 columns
+Train data set shape: 12798 rows 2744 columns
+</code></pre></div></div>
+
+<h3 id="data-review">Data Review</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># take a look all of the columns to get a feel of what the bulk of them are
+</span>
+<span class="n">test_df</span><span class="p">.</span><span class="n">info</span><span class="p">()</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 4267 entries, 0 to 4266
+Columns: 2744 entries, Additional_Number_of_Scoring to rating
+dtypes: float64(3), int64(2741)
+memory usage: 89.3 MB
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Check how many columns are related to hotel names, positive review words, and negative review words
+</span>
+<span class="c1"># Set up the column prefixes to count and a counter
+</span><span class="n">regex_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">'^Hotel_Name_'</span><span class="p">,</span> <span class="s">'^p_'</span><span class="p">,</span> <span class="s">'^n_'</span><span class="p">]</span>
+<span class="n">dummy_col</span> <span class="o">=</span> <span class="mi">0</span> 
+
+<span class="c1"># check the list of columns for the prefixes counts and print the results 
+</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">regex_list</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">temp_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">match</span><span class="p">,</span><span class="n">test_df</span><span class="p">.</span><span class="n">columns</span><span class="p">))</span>
+    <span class="n">dummy_col</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_list</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">temp_list</span><span class="p">)</span><span class="si">}</span><span class="s"> columns that start with </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'There are </span><span class="si">{</span><span class="n">test_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dummy_col</span><span class="si">}</span><span class="s"> other columns'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>There are 396 columns that start with ^Hotel_Name_
+There are 983 columns that start with ^p_
+There are 1343 columns that start with ^n_
+There are 22 other columns
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#next step is to set up x/y test and train DFs
+</span><span class="n">X_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="s">'rating'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="s">'rating'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="s">'rating'</span><span class="p">]</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="s">'rating'</span><span class="p">]</span>
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Test data set shape: </span><span class="si">{</span><span class="n">test_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> rows </span><span class="si">{</span><span class="n">test_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s"> columns'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'Train data set shape: </span><span class="si">{</span><span class="n">train_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> rows </span><span class="si">{</span><span class="n">train_df</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s"> columns'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'X_train shape: </span><span class="si">{</span><span class="n">X_train</span><span class="p">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s">X_test shape: </span><span class="si">{</span><span class="n">X_test</span><span class="p">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\
+</span><span class="s">        </span><span class="se">\n</span><span class="s">y_train shape: </span><span class="si">{</span><span class="n">y_train</span><span class="p">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s">y_test shape: </span><span class="si">{</span><span class="n">y_test</span><span class="p">.</span><span class="n">shape</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Test data set shape: 4267 rows 2744 columns
+Train data set shape: 12798 rows 2744 columns
+X_train shape: (12798, 2743)
+X_test shape: (4267, 2743)        
+y_train shape: (12798,)
+y_test shape: (4267,)
+</code></pre></div></div>
+
+<p>The updated data set contains about 17,000 rows with 25% of them being reserved for testing models. There are 2744 columns which is a huge expansion to the feature set. To get an understanding of what all those columns were I looked at the <code class="language-plaintext highlighter-rouge">.info()</code> listing and noticed that many columns from the original set are present. The expansion was from encoding tags, hotel names, positive review keywords and negative review key words. Using regular expressions I was able to find that there are approx.:  400 Hotels, 1000 positive review keywords, and 1350 negative review keywords.</p>
+
+<p>The final step of preparation was to create X and y dataframes from the test and train data files. As directed, ‘Rating’ was separated as a target variable.</p>
+
+<h2 id="1-employ-a-linear-classifer-on-this-dataset">1 Employ a Linear Classifer on this dataset</h2>
+
+<p>a. Fit a logisitic regression model to this data with the solver set to lbfgs. What is the accuracy score on the test set?</p>
+
+<p>b. What are the 20 words most predictive of a good review (from the positive review column)? What are the 20 words most predictive with a bad review (from the negative review column)? Use the regression coefficients to answer this question</p>
+
+<p>c. Reduce the dimensionality of the dataset using PCA, what is the relationship between the number of dimensions and run-time for a logistic regression?</p>
+
+<p>d. List one advantage and one disadvantage of dimensionality reduction.</p>
+
+<h3 id="1-a">1 a.</h3>
+
+<p>Setting up a basic model yielded a result of 73.3% accuracy. I added the <code class="language-plaintext highlighter-rouge">max_iter</code> parameter to ensure the logsitic regression would coverge. With so many variables scaling did not help the model coverge in the standard 100 iterations. I got good results after 250 iterations, but other versions of this model take more so I went with 1,000.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># create scaled versions of the test and train dataframes
+</span><span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train_ss</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test_ss</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># instantiate the model
+# use lbfgs solver as directed, 1000 iterations to ensure the model converges
+</span><span class="n">logistic_regression_model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s">'lbfgs'</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c1"># fit the model
+</span><span class="n">logistic_regression_model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<style>#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style>
+<div id="sk-container-id-1" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>LogisticRegression(max_iter=1000)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox" checked="" /><label for="sk-estimator-id-1" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(max_iter=1000)</pre></div></div></div></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Calculate the score and display it
+</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">logistic_regression_model</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_ss</span><span class="p">,</span><span class="n">y_test</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'The score on the test set is </span><span class="si">{</span><span class="n">score</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="p">.</span><span class="mi">1</span><span class="n">f</span><span class="si">}</span><span class="s">%'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The score on the test set is 73.3%
+</code></pre></div></div>
+
+<h3 id="1-b">1 b.</h3>
+
+<p>Now that I have the the fitted model I can extract the list of coefficients and columns they are associated with. Taking a look at the lists and associated coefficients I can see that positive words tend to more impact on the model.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># Set up a dataframe consisting of the coefficient of the model and the list of columns 
+</span>
+<span class="n">coefficient_df</span>  <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">logistic_regression_model</span><span class="p">.</span><span class="n">coef_</span><span class="p">).</span><span class="n">T</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X_test</span><span class="p">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="n">coefficient_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">coefficient_df</span><span class="p">,</span><span class="n">cols</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">coefficient_df</span><span class="p">.</span><span class="n">set_axis</span><span class="p">([</span><span class="s">'coef'</span><span class="p">,</span><span class="s">'column'</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># create smaller dataframes consisting of just positive review words and negative review words
+</span>
+<span class="n">p_df</span> <span class="o">=</span> <span class="n">coefficient_df</span><span class="p">[</span><span class="n">coefficient_df</span><span class="p">[</span><span class="s">'column'</span><span class="p">].</span><span class="nb">str</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'p_'</span><span class="p">)]</span>
+<span class="n">n_df</span> <span class="o">=</span> <span class="n">coefficient_df</span><span class="p">[</span><span class="n">coefficient_df</span><span class="p">[</span><span class="s">'column'</span><span class="p">].</span><span class="nb">str</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'n_'</span><span class="p">)]</span>
+
+<span class="c1"># sort these columns and display top 20 words by coefficient.  
+</span><span class="k">print</span><span class="p">(</span><span class="s">'Top 20 Positive review words: '</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">p_df</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">'coef'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'Top 20 negative review words: '</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">n_df</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">'coef'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Top 20 Positive review words: 
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coef</th>
+      <th>column</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>812</th>
+      <td>0.544474</td>
+      <td>p_gift</td>
+    </tr>
+    <tr>
+      <th>733</th>
+      <td>0.517316</td>
+      <td>p_excellent</td>
+    </tr>
+    <tr>
+      <th>880</th>
+      <td>0.450513</td>
+      <td>p_incredible</td>
+    </tr>
+    <tr>
+      <th>731</th>
+      <td>0.401304</td>
+      <td>p_exceed</td>
+    </tr>
+    <tr>
+      <th>874</th>
+      <td>0.398645</td>
+      <td>p_impeccable</td>
+    </tr>
+    <tr>
+      <th>728</th>
+      <td>0.374315</td>
+      <td>p_everything</td>
+    </tr>
+    <tr>
+      <th>829</th>
+      <td>0.350164</td>
+      <td>p_hair</td>
+    </tr>
+    <tr>
+      <th>822</th>
+      <td>0.348846</td>
+      <td>p_great</td>
+    </tr>
+    <tr>
+      <th>1242</th>
+      <td>0.348544</td>
+      <td>p_staff</td>
+    </tr>
+    <tr>
+      <th>664</th>
+      <td>0.337498</td>
+      <td>p_deluxe</td>
+    </tr>
+    <tr>
+      <th>483</th>
+      <td>0.330745</td>
+      <td>p_arrange</td>
+    </tr>
+    <tr>
+      <th>1232</th>
+      <td>0.328158</td>
+      <td>p_special</td>
+    </tr>
+    <tr>
+      <th>636</th>
+      <td>0.323876</td>
+      <td>p_could</td>
+    </tr>
+    <tr>
+      <th>735</th>
+      <td>0.319166</td>
+      <td>p_exceptional</td>
+    </tr>
+    <tr>
+      <th>463</th>
+      <td>0.315992</td>
+      <td>p_amazingly</td>
+    </tr>
+    <tr>
+      <th>458</th>
+      <td>0.307155</td>
+      <td>p_already</td>
+    </tr>
+    <tr>
+      <th>755</th>
+      <td>0.303737</td>
+      <td>p_fantastic</td>
+    </tr>
+    <tr>
+      <th>1062</th>
+      <td>0.299881</td>
+      <td>p_perfect</td>
+    </tr>
+    <tr>
+      <th>462</th>
+      <td>0.296349</td>
+      <td>p_amaze</td>
+    </tr>
+    <tr>
+      <th>539</th>
+      <td>0.291948</td>
+      <td>p_bridge</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Top 20 negative review words: 
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coef</th>
+      <th>column</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2027</th>
+      <td>0.706545</td>
+      <td>n_inn</td>
+    </tr>
+    <tr>
+      <th>2208</th>
+      <td>0.360512</td>
+      <td>n_nothing</td>
+    </tr>
+    <tr>
+      <th>1980</th>
+      <td>0.351926</td>
+      <td>n_height</td>
+    </tr>
+    <tr>
+      <th>2637</th>
+      <td>0.341929</td>
+      <td>n_tricky</td>
+    </tr>
+    <tr>
+      <th>1725</th>
+      <td>0.326120</td>
+      <td>n_criticism</td>
+    </tr>
+    <tr>
+      <th>2728</th>
+      <td>0.315765</td>
+      <td>n_wonderful</td>
+    </tr>
+    <tr>
+      <th>1521</th>
+      <td>0.249176</td>
+      <td>n_assume</td>
+    </tr>
+    <tr>
+      <th>1678</th>
+      <td>0.241560</td>
+      <td>n_complain</td>
+    </tr>
+    <tr>
+      <th>2042</th>
+      <td>0.238234</td>
+      <td>n_join</td>
+    </tr>
+    <tr>
+      <th>1799</th>
+      <td>0.220748</td>
+      <td>n_drawer</td>
+    </tr>
+    <tr>
+      <th>2489</th>
+      <td>0.217813</td>
+      <td>n_slight</td>
+    </tr>
+    <tr>
+      <th>1782</th>
+      <td>0.214562</td>
+      <td>n_dislike</td>
+    </tr>
+    <tr>
+      <th>2272</th>
+      <td>0.214130</td>
+      <td>n_pick</td>
+    </tr>
+    <tr>
+      <th>1964</th>
+      <td>0.213995</td>
+      <td>n_half</td>
+    </tr>
+    <tr>
+      <th>1907</th>
+      <td>0.210130</td>
+      <td>n_follow</td>
+    </tr>
+    <tr>
+      <th>2189</th>
+      <td>0.207238</td>
+      <td>n_negative</td>
+    </tr>
+    <tr>
+      <th>1853</th>
+      <td>0.193955</td>
+      <td>n_executive</td>
+    </tr>
+    <tr>
+      <th>2423</th>
+      <td>0.187800</td>
+      <td>n_sachet</td>
+    </tr>
+    <tr>
+      <th>2086</th>
+      <td>0.187543</td>
+      <td>n_little</td>
+    </tr>
+    <tr>
+      <th>1438</th>
+      <td>0.187366</td>
+      <td>n_5th</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="1-c">1 c.</h3>
+
+<p>Using PCA and reducing the number of dimenensions did improve the model by 3%. This is an improvement of the first model, however there is still work to do.</p>
+
+<p>Using <code class="language-plaintext highlighter-rouge">%timeit</code> I can see there is an order of magnitude difference between fitting a model to the full PCA set vs the 6 dimension set.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># create PCA object
+</span><span class="n">log_PCA</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">()</span>
+
+<span class="c1"># fit PCA to our data
+</span><span class="n">log_PCA</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">)</span>
+
+<span class="c1"># transform the train and test data
+</span><span class="n">X_train_ss_PCA</span> <span class="o">=</span> <span class="n">log_PCA</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">)</span>
+<span class="n">X_test_ss_PCA</span> <span class="o">=</span> <span class="n">log_PCA</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test_ss</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># look at the shape of the PCA data
+</span><span class="n">X_train_ss_PCA</span><span class="p">.</span><span class="n">shape</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(12798, 2743)
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># look at the variance explained by the first 10 most impactful features
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'PCA feature #</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s"> var ratio: </span><span class="si">{</span><span class="n">log_PCA</span><span class="p">.</span><span class="n">explained_variance_ratio_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+
+<span class="c1"># look at the variance explained by the last 10 most impactful features
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'PCA feature #</span><span class="si">{</span><span class="o">-</span><span class="n">i</span><span class="si">}</span><span class="s"> var ratio: </span><span class="si">{</span><span class="n">log_PCA</span><span class="p">.</span><span class="n">explained_variance_ratio_</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+
+<span class="c1"># with over 2000 features it it makes sense that less each contributes &lt; 1%
+</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PCA feature #1 var ratio: 0.007637859215482228
+PCA feature #2 var ratio: 0.004727197738142273
+PCA feature #3 var ratio: 0.0021802390151672534
+PCA feature #4 var ratio: 0.001960084867135508
+PCA feature #5 var ratio: 0.0019249941981280033
+PCA feature #6 var ratio: 0.0017158766635731037
+PCA feature #7 var ratio: 0.0016899621491484448
+PCA feature #8 var ratio: 0.0016589648703314523
+PCA feature #9 var ratio: 0.0016107487339177213
+PCA feature #10 var ratio: 0.001576439059399313
+PCA feature #0 var ratio: 0.007637859215482228
+PCA feature #-1 var ratio: 5.691169061098283e-37
+PCA feature #-2 var ratio: 1.6093837478622824e-36
+PCA feature #-3 var ratio: 3.132638814409508e-36
+PCA feature #-4 var ratio: 4.432006586156138e-36
+PCA feature #-5 var ratio: 6.248977796351376e-36
+PCA feature #-6 var ratio: 1.3445946980485758e-35
+PCA feature #-7 var ratio: 1.6918929449174655e-35
+PCA feature #-8 var ratio: 1.8554423987425492e-35
+PCA feature #-9 var ratio: 1.9447051737277108e-35
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># look for a good number of PCs
+</span><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">([</span><span class="n">log_PCA</span><span class="p">.</span><span class="n">explained_variance_ratio_</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_21_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">log_PCA</span><span class="p">.</span><span class="n">explained_variance_ratio_</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">99</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">#the elbow is less than 20, enhance!
+</span></code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_22_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">21</span><span class="p">),</span><span class="n">log_PCA</span><span class="p">.</span><span class="n">explained_variance_ratio_</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">#This indicates the I should use 6 components 
+</span>
+</code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_23_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># fit the data using a 6 component PCA object
+</span>
+<span class="n">log_PCA_6</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">log_PCA_6</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">)</span>
+
+<span class="c1"># transform the train and test data
+</span><span class="n">X_train_ss_PCA_6</span> <span class="o">=</span> <span class="n">log_PCA_6</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">)</span>
+<span class="n">X_test_ss_PCA_6</span> <span class="o">=</span> <span class="n">log_PCA_6</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test_ss</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># build a logsitic regression model to this data
+</span>
+<span class="n">my_logreg_PCA_6</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s">'lbfgs'</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">my_logreg_PCA_6</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss_PCA_6</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">my_logreg_PCA_6</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_ss_PCA_6</span><span class="p">,</span><span class="n">y_test</span><span class="p">)</span>
+
+<span class="c1"># we picked up 3% 
+</span>
+
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0.7698617295523787
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">%%</span><span class="n">timeit</span>
+<span class="n">my_logreg_PCA_6</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss_PCA_6</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10.9 ms ± 279 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">my_logreg_PCA</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s">'lbfgs'</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">%%</span><span class="n">timeit</span>
+<span class="n">my_logreg_PCA</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss_PCA</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>5.12 s ± 129 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+</code></pre></div></div>
+
+<h3 id="1d">1.d</h3>
+
+<p>One advantage of using PCA is you can reduce the number of features in your dataset without losing information. This saves time training your models without a loss of infromation supplied to them. In this case reducing the dimensions along with PCA imrpoved the accuracy score.</p>
+
+<p>The disadvantage is in understanding and interpreting the results. Once the data is transformed using PCA the features are combined so it is difficult to tell which ones are impacting results. This might be okay if you a trying to opitimize performnace of a model rather than using a model to explain which features impact the results.</p>
+
+<h2 id="2-employ-a-k--nearest-neighbor-classifier-on-the-dataset">2 Employ a K- Nearest Neighbor classifier on the dataset.</h2>
+
+<p>Fit a KNN model to this data. What is the accuracy score on the test set?</p>
+
+<p>KNN is a computationally expensive model. Reduce the number of observations (data points) in the dataset. What is the relationship between the number of observations and run-time for KNN?</p>
+
+<p>List one advantage and one disadvantage of reducing the number of observations.</p>
+
+<p>Use the dataset to find an optimal value for K in the KNN algorithm. You will need to split your dataset into train and validation sets.</p>
+
+<p>What is the issue with splitting the data into train and validation sets after performing vectorization?</p>
+
+<h3 id="2-a">2 a</h3>
+
+<p>Running the test of scaled data yielded a score of 57%</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># fit a KNN model and find the accuract score
+</span>
+<span class="n">KNN_NLP</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">()</span>
+<span class="n">KNN_NLP</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">KNN_test</span> <span class="o">=</span> <span class="n">KNN_NLP</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">KNN_accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">KNN_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c:\Users\russk\anaconda3\lib\site-packages\sklearn\base.py:443: UserWarning: X has feature names, but KNeighborsClassifier was fitted without feature names
+  warnings.warn(
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">KNN_accuracy</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0.5753456761190532
+</code></pre></div></div>
+
+<h3 id="2b-2c">2b 2c</h3>
+
+<p>Reducing the number of obervations in the model leads to a faster run time. This weakens the model by increasting the chance you will create an overfitted model that will perform worse overall</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X_train_reduced</span><span class="p">,</span> <span class="n">X_test_reduced</span><span class="p">,</span> <span class="n">y_train_reduced</span><span class="p">,</span> <span class="n">y_test_reduced</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## all data 454 ms/loop
+## 80% data 348 ms/loop
+## 60% data 256 ms/loop
+## 40% data 189 ms/loop
+## 20% data 87 ms/loop
+</span>
+<span class="c1">## reducing the number of obervations in the model leads to a faster run time. This weakens the model by increasting the chance you will create an overfitted model that will perform worse overall
+</span>
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="o">%%</span><span class="n">timeit</span>
+<span class="n">KNN_NLP</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_reduced</span><span class="p">,</span> <span class="n">y_train_reduced</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>85.4 ms ± 1.85 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+</code></pre></div></div>
+
+<h3 id="2d">2d</h3>
+
+<p>18 nearest neighbors would be the optimal paramater for this model.</p>
+
+<h3 id="2e">2e</h3>
+<p>Spliting data into test/train/validation sets before vectorizing raises the potential of creating different features in each set. The result will be models that are overfitted to the training set.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">k_list</span> <span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">score_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">X_train_knn</span><span class="p">,</span> <span class="n">X_validiation_knn</span><span class="p">,</span> <span class="n">y_train_knn</span><span class="p">,</span> <span class="n">y_validiation_knn</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">k_list</span><span class="p">:</span>
+    <span class="n">KNN_NLP</span> <span class="o">=</span> <span class="n">KNeighborsClassifier</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">KNN_NLP</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_knn</span><span class="p">,</span> <span class="n">y_train_knn</span><span class="p">)</span>
+    <span class="n">KNN_test</span> <span class="o">=</span> <span class="n">KNN_NLP</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_validiation_knn</span><span class="p">)</span>
+    <span class="n">KNN_accuracy</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">KNN_test</span><span class="p">,</span> <span class="n">y_validiation_knn</span><span class="p">)</span>
+    <span class="n">score_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">KNN_accuracy</span><span class="p">)</span>
+   
+
+    
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">k_list</span><span class="p">,</span> <span class="n">score_list</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'|'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_40_0.png" alt="png" /></p>
+
+<h2 id="3-employ-a-decision-tree-classifier-on-this-dataset">3 Employ a Decision Tree classifier on this dataset</h2>
+
+<p>Employ a Decision Tree classifier on this dataset:</p>
+
+<p>Fit a decision tree model to this data. What is the accuracy score on the test set?</p>
+
+<p>Use the data set (or a subsample) to find an optimal value for the maximum depth of the decision tree. You will need to split your data set into train and validation.</p>
+
+<p>Provide two advantages of decision trees over KNN. Provide two weaknesses of decision trees (classification or regression trees)</p>
+
+<h3 id="3a">3a</h3>
+
+<p>The base model for decision tree yielded a 69.7% result</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DT_model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">()</span>
+<span class="n">DT_model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<style>#sk-container-id-2 {color: black;background-color: white;}#sk-container-id-2 pre{padding: 0;}#sk-container-id-2 div.sk-toggleable {background-color: white;}#sk-container-id-2 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-2 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-2 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-2 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-2 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-2 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-2 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-2 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-2 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-2 div.sk-item {position: relative;z-index: 1;}#sk-container-id-2 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-2 div.sk-item::before, #sk-container-id-2 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-2 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-2 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-2 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-2 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-2 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-2 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-2 div.sk-label-container {text-align: center;}#sk-container-id-2 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-2 div.sk-text-repr-fallback {display: none;}</style>
+<div id="sk-container-id-2" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>DecisionTreeClassifier()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" checked="" /><label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow">DecisionTreeClassifier</label><div class="sk-toggleable__content"><pre>DecisionTreeClassifier()</pre></div></div></div></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DT_model</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0.701663932505273
+</code></pre></div></div>
+
+<h3 id="3b">3b</h3>
+
+<p>The optimal depth for a the decision tree on this dataset is 8. That yields a 74% accuracy rate on the validation set and a 74.5% on the test data.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">depth_list</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">26</span><span class="p">)</span>
+<span class="n">score_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">X_train_DT</span><span class="p">,</span> <span class="n">X_validiation_DT</span><span class="p">,</span> <span class="n">y_train_DT</span><span class="p">,</span> <span class="n">y_validiation_DT</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">depth_list</span><span class="p">:</span>
+    <span class="n">DT_model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+    <span class="n">DT_model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_DT</span><span class="p">,</span> <span class="n">y_train_DT</span><span class="p">)</span>
+    <span class="n">DT_score</span> <span class="o">=</span> <span class="n">DT_model</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_validiation_DT</span><span class="p">,</span><span class="n">y_validiation_DT</span><span class="p">)</span>
+    <span class="n">score_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">DT_score</span><span class="p">)</span>
+    
+<span class="k">print</span><span class="p">(</span><span class="s">'Process Complete'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">depth_list</span><span class="p">,</span> <span class="n">score_list</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'+'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">depth_list</span><span class="p">,</span><span class="n">score_list</span><span class="p">]).</span><span class="n">T</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Process Complete
+</code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_46_1.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">depth_list</span><span class="p">,</span><span class="n">score_list</span><span class="p">]).</span><span class="n">T</span>
+
+<span class="n">results</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7</th>
+      <td>8.0</td>
+      <td>0.739844</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DT_model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">DT_model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">DT_model</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0.7464260604640263
+</code></pre></div></div>
+
+<h2 id="4">4</h2>
+
+<p>What is the purpose of the validation set, i.e., how is it different than the test set?</p>
+
+<p>The validation sets are used for tuning a model. It is a subset of the training data where test data is separated before the training process. By keeping validation data separate from training data we can tune the model without bringing in bias from the test set. It also ensures that the test data is unseen by the model (and the data scientist!) This is strengthend with cross validation is used since there are multiple samples of the training data being tested.</p>
+
+<h2 id="5">5</h2>
+
+<p>Re-run a decision tree or logistic regression on the data again:</p>
+
+<p>Perform a 5-fold cross validation to optimize the hyperparameters of your model.
+ What does your confusion matrix look like for your best model on the test set?</p>
+
+<h3 id="5-a">5 a</h3>
+
+<p>Using a 5-fold cross validation on the logisitic regression model pointed to 0.001 being the optimal value for the l2 parameter C.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cv_score_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">C_range</span> <span class="o">=</span> <span class="p">[.</span><span class="mi">00001</span><span class="p">,.</span><span class="mi">0001</span><span class="p">,.</span><span class="mi">001</span><span class="p">,.</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span><span class="mi">10000</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C_range</span><span class="p">:</span>
+    <span class="n">log_model_5</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s">'lbfgs'</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s">'l2'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cross_val_score</span><span class="p">(</span><span class="n">log_model_5</span><span class="p">,</span><span class="n">X_train_ss</span><span class="p">,</span><span class="n">y_train</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>
+
+    <span class="n">cv_score_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s"> loop complete'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1e-05 loop complete
+0.0001 loop complete
+0.001 loop complete
+0.1 loop complete
+1 loop complete
+10 loop complete
+100 loop complete
+1000 loop complete
+10000 loop complete
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">C_range</span><span class="p">,</span> <span class="n">cv_score_list</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'|'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xscale</span><span class="p">(</span><span class="s">"log"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'Parameter Tuning for C'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'L2 Regularization Parameter C'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'Cross Validation Score'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+
+</code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_53_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">C_range</span><span class="p">,</span><span class="n">cv_score_list</span><span class="p">]).</span><span class="n">T</span>
+<span class="n">results</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>0.001</td>
+      <td>0.775277</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">log_model_5b</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s">'lbfgs'</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s">'l2'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="p">.</span><span class="mi">001</span><span class="p">)</span>
+<span class="n">log_model_5b</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_ss</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<style>#sk-container-id-3 {color: black;background-color: white;}#sk-container-id-3 pre{padding: 0;}#sk-container-id-3 div.sk-toggleable {background-color: white;}#sk-container-id-3 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-3 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-3 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-3 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-3 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-3 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-3 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-3 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-3 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-3 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-3 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-3 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-3 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-3 div.sk-item {position: relative;z-index: 1;}#sk-container-id-3 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-3 div.sk-item::before, #sk-container-id-3 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-3 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-3 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-3 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-3 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-3 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-3 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-3 div.sk-label-container {text-align: center;}#sk-container-id-3 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-3 div.sk-text-repr-fallback {display: none;}</style>
+<div id="sk-container-id-3" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>LogisticRegression(C=0.001, max_iter=250)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden=""><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" checked="" /><label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(C=0.001, max_iter=250)</pre></div></div></div></div></div>
+
+<h3 id="5b">5b</h3>
+
+<p>This model, now tuned, has an acurracy of 78% making it the best version of the regression model yet. The confusion matrix shows about 1300 bad reviews correctly labeled and 2000 good reviews correctly labeled. What’s interesting is that the number of of false positives and false negatives are similar and the model isn’t tedning to misclassify in one direction or the other. To me that indicates that our model isn’t biased because the edge cases are evenly split.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plot_confusion_matrix</span><span class="p">(</span><span class="n">log_model_5b</span><span class="p">,</span> <span class="n">X_test_ss</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>c:\Users\russk\anaconda3\lib\site-packages\sklearn\utils\deprecation.py:87: FutureWarning: Function plot_confusion_matrix is deprecated; Function `plot_confusion_matrix` is deprecated in 1.0 and will be removed in 1.2. Use one of the class methods: ConfusionMatrixDisplay.from_predictions or ConfusionMatrixDisplay.from_estimator.
+  warnings.warn(msg, category=FutureWarning)
+
+
+
+
+
+&lt;sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x2235fd8cdc0&gt;
+</code></pre></div></div>
+
+<p><img src="/Kibat_NLP_PART_2_files/Kibat_NLP_PART_2_57_2.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># other metrics
+</span>
+<span class="n">log_model_5b_predictions</span> <span class="o">=</span> <span class="n">log_model_5b</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test_ss</span><span class="p">)</span>
+<span class="n">report_initial</span> <span class="o">=</span> <span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">log_model_5b_predictions</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">report_initial</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>              precision    recall  f1-score   support
+
+           0       0.75      0.71      0.73      1809
+           1       0.80      0.82      0.81      2458
+
+    accuracy                           0.78      4267
+   macro avg       0.77      0.77      0.77      4267
+weighted avg       0.78      0.78      0.78      4267
+</code></pre></div></div>
+
+
+  </div>
+
+  <div class="date">
+    Written on 
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:russkibat@pm.me"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com/www.github.com/russ-kibat"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/www.linkediin.com/russkibat"><i class="svg-icon linkedin"></i></a>
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
