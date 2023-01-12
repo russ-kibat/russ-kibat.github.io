@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Hotel Review Analysis Using NLP Part 1
-Pulished: False
 ---
 
 Understanding how customers respond to thier stay through reviews is vital responding to changes in customer expecations and remaining competitive in the the hotel market. Feedback comes in the form of reviews with positive feedback and negative feedback. This notebook will explore 225 MB of hotel review data and prepare it for a classifiation modeling. The end goal will be to read reviews and predict the overall rating a customer gives thier experience at the hotel.
