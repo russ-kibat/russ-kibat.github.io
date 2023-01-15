@@ -20,12 +20,12 @@ avatar: https://raw.githubusercontent.com/russ-kibat/russ-kibat.github.io/master
 # Includes an icon in the footer for each username you enter
 footer-links:
   dribbble:
-  email: russkibat@pm.me
+  email: russkibat@pm.me 
   facebook:
   flickr:
-  github: www.github.com/russ-kibat
+  github: https://github.com/russ-kibat/
   instagram:
-  linkedin: www.linkediin.com/russkibat
+  linkedin: https://www.linkedin.com/in/russkibat/
   pinterest:
   rss: 
   twitter: 
@@ -42,7 +42,7 @@ google_analytics:
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
-url: http://www.github.com/russ-kibat
+url: https://github.com/russ-kibat/
 
 # If you're hosting your site at a Project repository on GitHub pages
 # (http://yourusername.github.io/repository-name)
