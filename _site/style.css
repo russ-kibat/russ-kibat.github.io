@@ -67,6 +67,10 @@ td {
   text-align: left;
 }
 
+th {
+  text-align: left;
+}
+
 body {
   background: #fff;
   font: 18px/1.4 Helvetica, Arial, sans-serif;
