@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Creating a Niche Classifer with Neural Networks
+title: Creating a Niche Classifier with Neural Networks
 permalink: /neural_networks/
 ---
 
