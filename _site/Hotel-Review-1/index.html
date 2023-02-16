@@ -10,10 +10,14 @@
 
     
     <meta name="description" content="Background
-Customer reviews are vital in understanding how a company can focus its attention on maintaining and growing its customer base. This is especially important in the hospitality industry where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers. Text data is time consuming to process and it can be difficult to get an understanding of subtle trends in the data without cross checking reviews to see if keywords are predictive of an overall rating. To aid this effort I am going to analyze customer feedback from an internationally operating hotel company. My goal is to build a model that can predict an overall positive or negative rating, based on common keywords in reviews. Once a reliable model has been developed I can deliver the keywords to company management responsible for improving customer experience. These insights will inform them as to what the hotels are doing well and where they can improve.
+Customer reviews contain vital data for companies–from highlighting the issues most important to clientele to calling attention to important areas of concern. Having access to customer review data allows companies to best understand where to focus their client-facing efforts when maintaining and growing their customer-bases. This is especially important in the hospitality industry, where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers.
+Text data is time-consuming to process, and it can be difficult to get an understanding of subtle trends in the data without cross-checking reviews to see if keywords are predictive of an overall rating. To aid this effort, I analyzed customer feedback from an internationally operating hotel brand. My goal was to build a model that could predict an overall positive or negative rating based on common keywords in reviews. After developing a reliable model, I could deliver the keywords to company management responsible for improving customer experience. The insights can inform key stakeholders about which hotels are doing well and which hotels need improvement.
+In this post I am going to demonstrate how to explore and clean the dataset in preparation for modeling. I use Pandas and Matplotlib to explore the data and clean up issues. I also use SKLearn.feature_extraction.CountVectorizer to parse the text reviews and add sparse matrices to the core data. In a follow up post I will compare several machine learning models to predict a positive or negative customer review based on their feedback and extract the relevant keywords for positive and negative reviews.
 " />
     <meta property="og:description" content="Background
-Customer reviews are vital in understanding how a company can focus its attention on maintaining and growing its customer base. This is especially important in the hospitality industry where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers. Text data is time consuming to process and it can be difficult to get an understanding of subtle trends in the data without cross checking reviews to see if keywords are predictive of an overall rating. To aid this effort I am going to analyze customer feedback from an internationally operating hotel company. My goal is to build a model that can predict an overall positive or negative rating, based on common keywords in reviews. Once a reliable model has been developed I can deliver the keywords to company management responsible for improving customer experience. These insights will inform them as to what the hotels are doing well and where they can improve.
+Customer reviews contain vital data for companies–from highlighting the issues most important to clientele to calling attention to important areas of concern. Having access to customer review data allows companies to best understand where to focus their client-facing efforts when maintaining and growing their customer-bases. This is especially important in the hospitality industry, where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers.
+Text data is time-consuming to process, and it can be difficult to get an understanding of subtle trends in the data without cross-checking reviews to see if keywords are predictive of an overall rating. To aid this effort, I analyzed customer feedback from an internationally operating hotel brand. My goal was to build a model that could predict an overall positive or negative rating based on common keywords in reviews. After developing a reliable model, I could deliver the keywords to company management responsible for improving customer experience. The insights can inform key stakeholders about which hotels are doing well and which hotels need improvement.
+In this post I am going to demonstrate how to explore and clean the dataset in preparation for modeling. I use Pandas and Matplotlib to explore the data and clean up issues. I also use SKLearn.feature_extraction.CountVectorizer to parse the text reviews and add sparse matrices to the core data. In a follow up post I will compare several machine learning models to predict a positive or negative customer review based on their feedback and extract the relevant keywords for positive and negative reviews.
 " />
     
     <meta name="author" content="Russ Kibat" />
@@ -46,7 +50,7 @@ Customer reviews are vital in understanding how a company can focus its attentio
 
           <nav>
             <a href="/">Blog</a>
-            <a href="/about">About</a>
+            <!-- <a href="/about">About</a> -->
           </nav>
         </header>
       </div>
@@ -58,9 +62,9 @@ Customer reviews are vital in understanding how a company can focus its attentio
 
   <div class="entry">
     <h2 id="background">Background</h2>
-<p>Customer reviews are vital in understanding how a company can focus its attention on maintaining and growing its customer base. This is especially important in the hospitality industry where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers. Text data is time consuming to process and it can be difficult to get an understanding of subtle trends in the data without cross checking reviews to see if keywords are predictive of an overall rating. To aid this effort I am going to analyze customer feedback from an internationally operating hotel company. My goal is to build a model that can predict an overall positive or negative rating, based on common keywords in reviews. Once a reliable model has been developed I can deliver the keywords to company management responsible for improving customer experience. These insights will inform them as to what the hotels are doing well and where they can improve.</p>
-
-<p>In this post I am going to explore and clean the dataset in preparation for modeling. I use <code class="language-plaintext highlighter-rouge">Pandas</code> and <code class="language-plaintext highlighter-rouge">Matplotlib</code> to explore the data and clean up issues. I also use <code class="language-plaintext highlighter-rouge">SKLearn.feature_extraction.CountVectorizer</code> to parse the text reviews and add sparse matrices to the core data. In the follow up post I will compare several machine learning models to predict a positive or negative customer review based on their feedback and extract the relevant keywords for positive and negative reviews.</p>
+<p>Customer reviews contain vital data for companies–from highlighting the issues most important to clientele to calling attention to important areas of concern. Having access to customer review data allows companies to best understand where to focus their client-facing efforts when maintaining and growing their customer-bases. This is especially important in the hospitality industry, where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers.
+Text data is time-consuming to process, and it can be difficult to get an understanding of subtle trends in the data without cross-checking reviews to see if keywords are predictive of an overall rating. To aid this effort, I analyzed customer feedback from an internationally operating hotel brand. My goal was to build a model that could predict an overall positive or negative rating based on common keywords in reviews. After developing a reliable model, I could deliver the keywords to company management responsible for improving customer experience. The insights can inform key stakeholders about which hotels are doing well and which hotels need improvement.
+In this post I am going to demonstrate how to explore and clean the dataset in preparation for modeling. I use <code class="language-plaintext highlighter-rouge">Pandas</code> and <code class="language-plaintext highlighter-rouge">Matplotlib</code> to explore the data and clean up issues. I also use <code class="language-plaintext highlighter-rouge">SKLearn.feature_extraction.CountVectorizer</code> to parse the text reviews and add sparse matrices to the core data. In a follow up post I will compare several machine learning models to predict a positive or negative customer review based on their feedback and extract the relevant keywords for positive and negative reviews.</p>
 
 <p>The repository for this project can be found on my
 <a href="https://github.com/russ-kibat/Hotel-Reviews">Github</a>.</p>
@@ -286,11 +290,9 @@ memory usage: 66.9+ MB
 
 <p><img src="/KIBAT_NLP_PART_1_files/KIBAT_NLP_PART_1_12_0.png" alt="png" /></p>
 
-<p>With the data types fixed I can now look at the distributions of the numeric columns and see if there is anything that will be a problem in the dataset. The target of the model will be the <code class="language-plaintext highlighter-rouge">Reviewer_Score</code>. That column is heavily skewed to higher ratings and that imbalance will be a problem for the models. Since I am ultimately looking to predict a positive/negative outcome I can convert this to a binary if I count reviews 9.0 or more as positive and reviews less than 9 as negative. This conversion leaves me with a nearly 50/50 split of positive and negative reviews.</p>
-
-<p>I ran into memory issues once I started working with the count vectorizer. To get around this I sampled 10% of the data and confirmed that the distribution of the target matched the original dataset.</p>
-
-<p>I also take the chance to get rid of object columns the models will not be looking at. Of course, I leave the review columns to parse in the next section.</p>
+<p>With the data types fixed I can now look at the distributions of the numeric columns and see if there is anything that will be a problem in the dataset. The target of the model will be the <code class="language-plaintext highlighter-rouge">Reviewer_Score</code>. That column is heavily skewed to higher ratings and that imbalance will be a problem for the models. Since I am ultimately looking to predict a positive/negative outcome I can convert this to a binary if I count reviews 9.0 or more as positive, and reviews less than 9 as negative. This conversion leaves me with a nearly 50/50 split of positive and negative reviews.
+I ran into memory issues once I started working with the count vectorizer. To get around this, I sampled 10% of the data and confirmed the distribution of the target matched the original dataset.
+I also took the chance to get rid of object columns the models will not be looking at. Of course, I leave the review columns to parse in the next section.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># replace ratings with a binary 
 </span><span class="n">raw_data</span><span class="p">[</span><span class="s">'Rating Int'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">raw_data</span><span class="p">[</span><span class="s">'Reviewer_Score'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">9.0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
@@ -413,9 +415,9 @@ None
 
 <h3 id="count-vectorization">Count Vectorization</h3>
 
-<p>In order to model the text reviews I need to represent them as numbers. I parse each word of each review and create sparse matrices of reviews in the review. SKLearn’s countvectorizer is the tool I use to accomplish this. Once the vectorizer is initialized and the object for the positive reviews is created it can be transformed into a sparse matrix. For each word in the reviews there is a column with the number of times it appears in the review. This is then turned into a Pandas friendly data frame and appended to the core data. At this point I save the datafile and am ready to model.</p>
+<p>In order to model the text reviews, I need to represent them as numbers. I parse each word of each review and create sparse matrices of reviews in the review. SKLearn’s countvectorizer is the tool I use to accomplish this. Once the vectorizer is initialized and the object for the positive reviews is created it can be transformed into a sparse matrix. For each word in the reviews, there is a column with the number of times it appears in the review. This is then turned into a Pandas-friendly data frame and appended to the core data. At this point I save the datafile and am ready to model.</p>
 
-<p>It’s important that I split my data into a test/train dataset before this process begins. In the process of the test reviews should not be included in training set vectorization to ensure the test reviews do not influence the model.</p>
+<p>It’s important that I split my data into a test/train dataset before this process begins. In the process of the test, reviews should not be included in training set vectorization to ensure the test reviews do not influence the model.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Separate the target column from the data column
 </span>
@@ -482,19 +484,16 @@ None
 </span><span class="n">df</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">'data/clean_hotel_data_1.csv'</span><span class="p">)</span>
 </code></pre></div></div>
 
-<p>Working through this process has been a great chance to begin to understand what it takes to preprocess data for natural language processing. After the straightforward data cleaning, getting into parsing text data is a new area for me to explore. I would like to work on the sparse matrices to further remove some of the extraneous terms. My initial approach was to look for words that appear in at least 10 reviews and remove a basic set of stop words in English. My next steps would be adding stemming techniques and looking for ngrams to make the sparse matrices smaller and have more impactful terms.</p>
-
-<p>There is still some unfinished business with the core of the data. Making use of the tags and hotel address information could be insightful for a more detailed modeling. There may be information about the length of stay, reason for travel, or other information that could give context to the reviews. Once I parse the hotel address I would be able to fill in the missing latitude and longitude coordinate. Having the country data available would also allow us to determine whether international travelers may have different concerns when choosing a hotel.</p>
-
-<p>I need to check the core data for collinearity before modeling begins. Removing correlated columns will improve the models over-fitting.</p>
-
-<p>The next post about this project will pick up with the cleaned dataset. I will explore several different machine learning models and see if I can model what makes a review positive or negative.</p>
+<p>Working through this process has been a great chance to begin to understand what it takes to pre-process data for natural language processing. After the straightforward data cleaning, getting into parsing text data is a new area for me to explore. I would like to work on the sparse matrices to further remove some of the extraneous terms. My initial approach was to look for words that appear in at least 10 reviews and remove a basic set of stop words in English. My next steps would be adding stemming techniques and looking for ngrams to make the sparse matrices smaller and thereby create more impactful terms.
+There is still some unfinished business with the core of the data. Making use of the tags and hotel address information could be insightful for more detailed modeling. There may be information about the length of stay, reason for travel, or other information, which could give context to the reviews. After parsing the hotel address, I would be able to fill in the missing latitude and longitude coordinates. Having the country data available would also allow stakeholders to determine whether international travelers may have different concerns when selecting a hotel.
+I need to check the core data for collinearity before modeling begins. Removing correlated columns will improve the models over-fitting.
+The next post about this project will pick up with the cleaned dataset. I will explore several different machine learning models and see if I can model what makes a review positive or negative.</p>
 
 
   </div>
 
   <!-- <div class="date">
-    Upd on January  1, 2023
+    Upd on January  7, 2023
   </div> -->
 
   

@@ -39,7 +39,7 @@
 
           <nav>
             <a href="/">Blog</a>
-            <a href="/about">About</a>
+            <!-- <a href="/about">About</a> -->
           </nav>
         </header>
       </div>
@@ -50,10 +50,25 @@
   
     <article class="post">
 
+      <h1><a href="/Hotel-Review-1/">Hotel Review Analysis Using NLP Part 1</a></h1>
+
+      <div class="entry">
+        <h2 id="background">Background</h2>
+<p>Customer reviews contain vital data for companies–from highlighting the issues most important to clientele to calling attention to important areas of concern. Having access to customer review data allows companies to best understand where to focus their client-facing efforts when maintaining and growing their customer-bases. This is especially important in the hospitality industry, where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers.
+Text data is time-consuming to process, and it can be difficult to get an understanding of subtle trends in the data without cross-checking reviews to see if keywords are predictive of an overall rating. To aid this effort, I analyzed customer feedback from an internationally operating hotel brand. My goal was to build a model that could predict an overall positive or negative rating based on common keywords in reviews. After developing a reliable model, I could deliver the keywords to company management responsible for improving customer experience. The insights can inform key stakeholders about which hotels are doing well and which hotels need improvement.
+In this post I am going to demonstrate how to explore and clean the dataset in preparation for modeling. I use <code class="language-plaintext highlighter-rouge">Pandas</code> and <code class="language-plaintext highlighter-rouge">Matplotlib</code> to explore the data and clean up issues. I also use <code class="language-plaintext highlighter-rouge">SKLearn.feature_extraction.CountVectorizer</code> to parse the text reviews and add sparse matrices to the core data. In a follow up post I will compare several machine learning models to predict a positive or negative customer review based on their feedback and extract the relevant keywords for positive and negative reviews.</p>
+
+      </div>
+
+      <a href="/Hotel-Review-1/" class="read-more">Read More</a>
+    </article>
+  
+    <article class="post">
+
       <h1><a href="/Bixi-1/">Exploring Montreal's Bike Sharing Program: Bixi</a></h1>
 
       <div class="entry">
-        <p>BIXI is the non-profit organization tasked with managing the city of Montreal’s public bike system. Created in 2014, Bixi manages 9,500 bikes and over 700 stations. As a part of the public transit solution for the city it offers bikes to every member of the public on a pay-per-use basis. They also offer seasonal and monthly memberships for dedicated users of the service.</p>
+        <p>Bixi is a non-profit organization tasked with managing the city of Montreal’s public bike system. Created in 2014, BIXI manages 9,500 bikes and over 700 stations. As a part of the public transit solution for the city, it offers bikes to every member of the public on a pay-per-use basis. They also offer seasonal and monthly memberships for dedicated users.</p>
 
       </div>
 
@@ -66,24 +81,11 @@
 
       <div class="entry">
         <h3 id="introduction">Introduction</h3>
-<p>The wedding industry consists of many independent designers, artists, and planners who are responsible for every aspect of their businesses. An important aspect of their marketing efforts takes place on social media platforms like Instagram. Over time, they develop large libraries of pictures that are the core of marketing efforts. These pictures come unlabeled and a great amount and it takes a great amount of time to search through them to select images for posts. Selecting photos for marketing takes valuable time away from spending time working with their clients. Computer vision techniques using neural networks offer a solution to this problem: using established image classification neural network models can I employ transfer learning to fine tune a model to create a niche classifier to classify wedding images on a small dataset?</p>
+<p>The wedding industry is composed of myriad independent designers, artists, and planners who are responsible for every aspect of their businesses–marketing being one of the most important and time-consuming. Over time, these entrepreneurs–frequently small business owners–develop large libraries of media which form the building blocks of their marketing efforts. These photos, shared after each celebration by the event’s photographers, are unlabeled, meaning every time a wedding creative wishes to post on social media or update their website, they must first spend a great deal of time searching through swathes of unlabeled images to select just a handful to share. Combing through thousands of wedding photos, just to locate one to post on Instagram, is often a daily task taking valuable time away from important client work. Computer vision techniques using neural networks offer a solution. Using established image classification neural network models, I employed transfer learning to finetune a model to create a niche classifier to sort and label wedding images in a small dataset.</p>
 
       </div>
 
       <a href="/neural-networks/" class="read-more">Read More</a>
-    </article>
-  
-    <article class="post">
-
-      <h1><a href="/Hotel-Review-1/">Hotel Review Analysis Using NLP Part 1</a></h1>
-
-      <div class="entry">
-        <h2 id="background">Background</h2>
-<p>Customer reviews are vital in understanding how a company can focus its attention on maintaining and growing its customer base. This is especially important in the hospitality industry where customers’ brand loyalty relies on consistent, positive experiences for frequent travelers. Text data is time consuming to process and it can be difficult to get an understanding of subtle trends in the data without cross checking reviews to see if keywords are predictive of an overall rating. To aid this effort I am going to analyze customer feedback from an internationally operating hotel company. My goal is to build a model that can predict an overall positive or negative rating, based on common keywords in reviews. Once a reliable model has been developed I can deliver the keywords to company management responsible for improving customer experience. These insights will inform them as to what the hotels are doing well and where they can improve.</p>
-
-      </div>
-
-      <a href="/Hotel-Review-1/" class="read-more">Read More</a>
     </article>
   
 </div>
