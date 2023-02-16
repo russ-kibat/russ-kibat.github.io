@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exploring Montreal's Bike Sharing Program: Bixi – Russ Kibat – Data Scientist</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="BIXI is the non-profit organization tasked with managing the city of Montreal’s public bike system. Created in 2014, Bixi manages 9,500 bikes and over 700 stations. As a part of the public transit solution for the city it offers bikes to every member of the public on a pay-per-use basis. They also offer seasonal and monthly memberships for dedicated users of the service.
+" />
+    <meta property="og:description" content="BIXI is the non-profit organization tasked with managing the city of Montreal’s public bike system. Created in 2014, Bixi manages 9,500 bikes and over 700 stations. As a part of the public transit solution for the city it offers bikes to every member of the public on a pay-per-use basis. They also offer seasonal and monthly memberships for dedicated users of the service.
+" />
+    
+    <meta name="author" content="Russ Kibat" />
+
+    
+    <meta property="og:title" content="Exploring Montreal's Bike Sharing Program: Bixi" />
+    <meta property="twitter:title" content="Exploring Montreal's Bike Sharing Program: Bixi" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="Russ Kibat - Data Scientist" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://raw.githubusercontent.com/russ-kibat/russ-kibat.github.io/master/images/profile_picture.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Russ Kibat</a></h1>
+            <p class="site-description">Data Scientist</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Exploring Montreal's Bike Sharing Program: Bixi</h1>
+
+  <div class="entry">
+    <p>BIXI is the non-profit organization tasked with managing the city of Montreal’s public bike system. Created in 2014, Bixi manages 9,500 bikes and over 700 stations. As a part of the public transit solution for the city it offers bikes to every member of the public on a pay-per-use basis. They also offer seasonal and monthly memberships for dedicated users of the service.</p>
+
+<p>My initial task is to review data from the 2016 and 2017 seasons to discover insights and gain an understanding of usage patterns using SQL and visualizations using G-Suite. The next phase of the project will utilize Tableau to create visualizations and answer questions may be posed by Bixi’s management team. Intuitively, weather can play a role in bike usage and upon collecting historical weather data for Montreal, I intend to model how daily weather affects bike usage in a third post.</p>
+
+<p>The data from the 2016 and 2017 seasons offers insights into seasonal usage demand, inbound/outbound traffic patterns, and the types of trips people are taking on BIXI bikes. I highlight growth between in the 2017 season and seasonal changes in usage by non-members to make a data-driven recommendation for a promotional campaign. I then analyze traffic for a particularly popular station and look at where users are using bikes for leisure rides rather than commuting.</p>
+
+<p>The data  provided to me for this project has been cleaned and was obtained from the open data portal at <a href="https://www.bixi.com/en/open-data">Bixi Montreal</a></p>
+
+<p>My SQL queries for this code can be found on my <a href="https://github.com/russ-kibat/Hotel-Reviews">Github</a>.</p>
+
+<hr />
+
+<h3 id="2016---2017-overview">2016 - 2017 Overview</h3>
+<p>Bixi saw the number of trips rise 19% during the  2017 season with over 4.5 million trips taken over the 2016 season with just under 3 million trips taken. Starting in June 2017 the average daily number of rides jumped above the 2016 season and remained high above throughout the rest of the 2016 monthly averages. Notably, this trend does not apply to the month of November.</p>
+
+<p><img src="/images/bixi1.png" alt="2016-2017 Trips" /><img src="/images/bixi2.png" alt="2016-2017 Monthly Trips" /></p>
+
+<p>Bixi bikes are only available for half of the month in April and November. These months bookend the winter-weather season in Montreal and that weather keeps users off bikes and utilizing warmer modes of transportation. April sees slightly more trips taken. That suggests people are eager to get out and ride in weather that feels warm and refreshing after winter and less eager to ride in those conditions after summer when those conditions feel harsh.</p>
+
+<h3 id="membership-status">Membership Status</h3>
+<p>Members take the vast majority of trips with Bixi. In 2017 over 80% of trips were by members. This is not a surprise given the pricing model of the service. Seasonal members get 45 minutes per ride included in the membership and then are charged $0.10 for the usage. Non-members pay a $1 usage fee plus $0.15 per minute of use.The mix of member and non-member rides varied throughout the season in 2017. For April, May, and June  less than 20% of trips were from non-members. During the peak-demand month of July. After that the percentage of members trips drops to the non-member trip low of 8% in November.</p>
+
+<p><img src="/images/bixi3.png" alt="Membership Status" /><img src="/images/bixi4.png" alt="Membership Status" /></p>
+
+<h3 id="monthly-demand-and-promotions">Monthly Demand and Promotions</h3>
+<p>Demand for Bixi bikes was highest for the 2016 and 2017 seasons during the summertime, peaking in July both years. The warm, dry weather during summer months along with seasonal travel and desire for outdoor fitness and leisure activities contributes to the increased demand. As summer turns to fall and the weather grows cooler that demand lessons until only the most dedicated and hearty riders take trips in November. The decrease in the drop off between September and October should be investigated further if additional data can be collected. A quick look at weather data from Montreal shows there were more “unseasonably warm days” in September and October 2017. Adding weather data to the data set could be modeled and offer more insights and refine comparisons between years.</p>
+
+<p><img src="/images/bixi5.png" alt="Membership Status" /></p>
+
+<p>The relative drop in member trips during the height of summer vacation should be expected. Both local residents and vacationers are likely to be utilizing Bixi to take advantage of the outdoor attractions of the city. The rise in member rides as the end of the season approaches is also predictable as non-members may convert to members after trying the service and enjoying the experience. Offering a promotion to entice non-members to sign up for a membership would be most effective in July since that will ensure the campaign reaches the most of the targeted non-member users. It also provides new members to take advantage of their membership by utilizing it for more than half of the season.</p>
+
+<h3 id="station-traffic">Station Traffic</h3>
+<p>Mackay/de Maisonneuve station was the most popular place to start a BIXI trip looking at data from 2016 and 2017 having nearly 1 million trips during this period. It’s located in the heart of Concordia University so it is no surprise that it would be a popular location as students finish classes and need to travel to other parts of the campus or home into the city.</p>
+
+<p><img src="/images/bixi6.png" alt="Membership Status" /><img src="/images/bixi7.png" alt="Membership Status" /></p>
+
+<p>The trip “starts” and “ends” at this station following the expected pattern for a station located in a place people may spend all or a portion of their day at. In the morning more trips end at the station as students and staff arrive for the day. In the afternoon there is an even number of starts and ends as some students leave after class and other students arrive for afternoon classes. In the evening full-day and part-day students leave in higher numbers than students that arrive for evening classes. Night traffic is sparse as most of the activity at this location takes place during business the day.</p>
+
+<h3 id="round-trips">Round Trips</h3>
+<p>There are many times and places traveling by bike would be desirable if it weren’t for the trouble it takes to transport bikes to a recreational location. This is an area where Bixi bikes can really open biking to people who may not be able to transport a bike to a trail or park. The map shows stations where the most bike trips started and ended at the same location. This is somewhat of an unusual case for Bixi. Typically users will end a trip at a destination and then start a new trip or travel away using another mode of transport. Even if someone commutes to and from the same locations daily using Bixi these won’t show up as round trips by looking at the trip data. These trips that start and end at the same location point to people taking longer, leisure rides through some of the parks outside of the city.  It would be expected that these rides take place away from the core of the city.</p>
+
+<p><img src="/images/table1.png" alt="Membership Status" /> 
+<img src="/images/map1 .jpg" alt="Membership Status" /></p>
+
+<p>Table 1 lists stations that were the start points for 500 or more trips with over 10% of those trips being round trips. These are also plotted on a map of the Montreal area to communicate where they are geographically.</p>
+
+<h3 id="further-analysis">Further Analysis</h3>
+<p>To get a better understanding of how people use BIXI and how to increase usage, adding bike centered data would be extremely beneficial. With data about the trips specific bikes have taken questions about common traffic routes could be answered. It would also be helpful in understanding if there are stations where bikes accumulate and lay dormant since the demand for bikes leaving from that location is low. It could also help inform parts of Bixi tasked to ensure there are bikes available in high demand stations and restocked if need be.</p>
+
+<p>User data could also be beneficial in understanding the difference between regular commuter rides and trips taken for a singular purpose or leisure rides. This analysis took a narrow definition of a round trip to mean a single ride that started and ended at a station. From the user point of view a round trip would likely be two trips taken hours apart, as in the case of commuting. Understanding where and when those needs are would help bolster confidence that bikes will be available when people need them.</p>
+
+<h3 id="conclusions">Conclusions</h3>
+<p>The Montreal bike sharing program managed by Bixi saw excellent growth from the 2016 to the 2017 season. Understanding usage as it relates to seasonal weather should be a key focus in deciding the next steps to take when considering promotions and making decisions about how many bikes need to be in the fleet. Continued growth can only occur as bikes are available to ride as people want them. Over the two seasons available for this analysis round trip rides were a very small part of the needs served by Bixi. Expanding opportunities for this type of trip may also be a place for Bixi to grow. Bixi has a unique role in serving the transportation needs for the city of Montreal. Continuing to collect and explore data generated by the program is vital in ensuring Bixi is doing its best to meet those needs now and in the future.</p>
+
+<p>The data  provided to me for this project has been cleaned and was obtained from the open data portal at <a href="https://www.bixi.com/en/open-data">Bixi Montreal</a></p>
+
+<p>My SQL queries for this code can be found on my <a href="https://github.com/russ-kibat/Hotel-Reviews">Github</a>.</p>
+
+
+  </div>
+
+  <!-- <div class="date">
+    Upd on January  6, 2023
+  </div> -->
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+<a href="mailto:russkibat@pm.me"><i class="svg-icon email"></i></a>
+
+
+<a href="https://github.com//russ-kibat/"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in//russkibat/"><i class="svg-icon linkedin"></i></a>
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
